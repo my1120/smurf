@@ -8,9 +8,9 @@
 #' @param x The varibale to be lagged
 #' @param lags The number of days the variable should be lagged
 #' @param by A vector of ids or a matrix with columns as the id variables. The events will be found separately within each unique combination of id variables. This is optional.
-#' @value Returns a data.table with lagged exposures as well as the date and by variables.
+#' @return Returns a data.table with lagged exposures as well as the date and by variables.
 #' @author Ander Wilson
-#' @imports data.table
+#' @import data.table
 #' @export
 lag <- function(date,x,lags=1, by){
   

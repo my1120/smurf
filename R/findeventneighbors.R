@@ -8,9 +8,9 @@
 #' @param event A logical indicating if a day was an event.
 #' @param days The number of days that must separate a given day from an event.
 #' @param by A vector of ids or a matrix with columns as the id variables. The events will be found separately within each unique combination of id variables. This is optional.
-#' @value Returns a vector of logicals that indivates which days are not events and not with in days (number provided) of another event.
+#' @return Returns a vector of logicals that indivates which days are not events and not with in days (number provided) of another event.
 #' @author Ander Wilson
-#' @imports data.table
+#' @import data.table
 #' @export
 findeventneighbors <- function(date,event,days=0, by){
   

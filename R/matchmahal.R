@@ -7,11 +7,11 @@
 #' @param casecontrol A vector where 1 indentifies events, 0 identifies potential controls, and NA represent non-event days that are not eligible to be matched (e.g. missing data, or excluded for some other reason).
 #' @param matchvars A matrix where the columns represent variables that will be matched on using the Mahalanobis distrance and nearest neighbor.
 #' @param by A vector of ids or a matrix with columns as the id variables. The events will be found separately within each unique combination of id variables. This is optional.
-#' @value data A data.table of matched cases and controls.
-#' @value nn A summary of the number if cases and controls that were matched. See documentation for matchit for more details.
-#' @value sum.matched A summary of the quality of each match. See documentation for matchit for more details.
+#' @return data A data.table of matched cases and controls.
+#' @return nn A summary of the number if cases and controls that were matched. See documentation for matchit for more details.
+#' @return sum.matched A summary of the quality of each match. See documentation for matchit for more details.
 #' @author Ander Wilson
-#' @imports data.table MatchIt
+#' @import data.table MatchIt
 #' @export
 matchmahal <- function(date,casecontrol,matchvars,by){
   

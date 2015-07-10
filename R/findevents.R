@@ -8,9 +8,9 @@
 #' @param xmin The minimum value that x must be for at least mindays to qualify as an event.
 #' @param mindays The minimum number of consecutive days that qualify as an event.
 #' @param by A vector of ids or a matrix with columns as the id variables. The events will be found separately within each unique combination of id variables. This is optional.
-#' @value Returns a data.table with the columns for by, x, date as well as the following new variables: above and indivator the x>xmin; above_fromstart number of consecutive days that have exceeded xmin through the current date; above_toend the number of remaining days that are above xmin; length the total number of consecutive days that are above xmin; event a logical indivatring a day is part of an event.  
+#' @return Returns a data.table with the columns for by, x, date as well as the following new variables: above and indivator the x>xmin; above_fromstart number of consecutive days that have exceeded xmin through the current date; above_toend the number of remaining days that are above xmin; length the total number of consecutive days that are above xmin; event a logical indivatring a day is part of an event.  
 #' @author Ander Wilson
-#' @imports data.table
+#' @import data.table
 #' @export
 findevents <- function(date,x,xmin,mindays=2, by){
   
