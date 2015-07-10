@@ -1,0 +1,9 @@
+Package: smurf
+Type: Package
+Title: Some Useful R Functions
+Version: 1.0
+Date: 2015-07-09
+Author: Ander Wilson
+Maintainer: Ander Wilson <awilson@hsph.harvard.edu>
+Description: This package contains some useful functions that were written for varios projects, collaborators, and examples.
+License: GPL-2
