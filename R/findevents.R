@@ -30,6 +30,7 @@ findevents <- function(date,x,xmin,mindays=2, by){
   dat[,above:=1*(x>xmin)]
   dat[,above_fromstart:=above]
   dat[,above_toend:=above]
+  dat <- unique(dat)
   
   kg <- TRUE
   i <- 1

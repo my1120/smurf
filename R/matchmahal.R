@@ -33,6 +33,7 @@ matchmahal <- function(date,casecontrol,matchvars,by,ratio=1,datewindow,...){
   dat[,casecontrol:=casecontrol]
   dat[,byid:=bydt[,(byid)]]
   dat[,date:=date]
+  dat <- unique(dat)
   
   form <- formula(paste0("casecontrol~",paste(colnames(dat)[-which(colnames(dat)%in%c("casecontrol","byid","date"))],collapse="+")))
   
