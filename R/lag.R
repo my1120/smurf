@@ -29,6 +29,8 @@ lag <- function(date,x,lags=1, by){
   
   dat <- data.table(date=date,xlag0=x,byid=bydt$byid)
   setkeyv(dat,c("byid","date"))
+  dat <- unique(dat)
+  
   dat2 <- copy(dat)
   setnames(dat2,"xlag0","xtemp")
   
