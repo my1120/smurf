@@ -16,7 +16,7 @@
 #' @return sum.matched A summary of the quality of each match. See documentation for matchit for more details.
 #' @author Ander Wilson
 #' @seealso MatchIt
-#' @import data.table, MatchIt
+#' @import data.table MatchIt
 #' @export
 mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,ratio=1,...){
   
