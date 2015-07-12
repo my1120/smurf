@@ -45,7 +45,6 @@ mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,rat
   
   matched.sample <- sum.matched <- nn <- data.table()
   for(i in unique(dat[,(byid)])){
-    print(i)
     #make matching data for county
     dati <- dat[byid==i]
     dati <- as.data.frame(dati[complete.cases(dati),])
@@ -98,7 +97,7 @@ mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,rat
   setkeyv(bydt,"byid") 
   setkeyv(matched.sample,c("byid","date")) 
   setkeyv(nn,"byid") 
-  setkeyv(bydt,"byid") 
+  setkeyv(sum.matched,"byid") 
   sum.matched <- unique(bydt)[sum.matched]
   nn <- unique(bydt)[nn]
   data <- unique(bydt)[matched.sample]
