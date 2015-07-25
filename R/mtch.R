@@ -10,7 +10,7 @@
 #' @param caldays The number of days that matched value will be selected from. This ignors year but only looks at date and month. For example, if caldays=7 then the pairs will be from within 7 days of the control (inclusive).
 #' @param by A vector of ids or a matrix with columns as the id variables. The events will be found separately within each unique combination of id variables. This is optional.
 #' @param ratio The number of control units to be matched to each case. The default is 1.  See documentation for matchit for more details. 
-#' @param datewindow A scalar that limits the potential control days to be within a a particular number of days of the range of events. For example, if the events occur on days 100, 101, 150, 151, 152 of the year and datewindow=7 then control days will have day of years in the range of 93 to 159. If missing then all days are eligible.
+#' @param seed A seed for a random number generator.
 #' @return data A data.table of matched cases and controls.
 #' @return nn A summary of the number if cases and controls that were matched. See documentation for matchit for more details.
 #' @return sum.matched A summary of the quality of each match. See documentation for matchit for more details.
@@ -18,8 +18,8 @@
 #' @seealso MatchIt
 #' @import data.table MatchIt
 #' @export
-mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,ratio=1,...){
-  
+mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,ratio=1,seed...){
+  if(!missing(seed)) set.seed(seed)
   if(missing(by)){
     by <- NA
   }else{
