@@ -18,7 +18,7 @@
 #' @seealso MatchIt
 #' @import data.table MatchIt
 #' @export
-mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,ratio=1,seed...){
+mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,ratio=1,seed,...){
   if(!missing(seed)) set.seed(seed)
   if(missing(by)){
     by <- NA
