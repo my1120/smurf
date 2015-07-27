@@ -51,26 +51,18 @@ mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,rat
     
     if(nrow(subset(dati,casecontrol==1))>0){
       row.names(dati) <- as.character(1:nrow(dati))
-      #limit to time window
-#       if(!missing(datewindow)){
-#         dati <- dati[doy>min(dati[casecontrol==1,(doy)])-datewindow & doy<max(dati[casecontrol==1,(doy)])+datewindow]
-#       }
+      #match the sample
         if(is.null(matchvars)){
-          matchit.fit <- matchit(casecontrol~caldoy, data=dati, method="nearest", caliper=caldays/sd(dati$caldoy), ratio=ratio)
+          matchit.fit <- matchit(casecontrol~caldoy, data=dati, method="nearest", caliper=caldays/sd(dati$caldoy), ratio=ratio,...)
         }else{
-          matchit.fit <- matchit(casecontrol~caldoy, data=dati, method="nearest", caliper=caldays/sd(dati$caldoy), mahvars=colnames(dati)[-which(colnames(dati)%in%(c("casecontrol","byid","date","caldoy")))], ratio=ratio)
+          matchit.fit <- matchit(casecontrol~caldoy, data=dati, method="nearest", caliper=caldays/sd(dati$caldoy), mahvars=colnames(dati)[-which(colnames(dati)%in%(c("casecontrol","byid","date","caldoy")))], ratio=ratio,...)
         }
       
-
-      #matchit
-#       matchit.fit <- matchit(casecontrol~doy, data=dati, distance="mahalanobis", method="nearest")
       #save match
       matchedout <- data.table(match.data(matchit.fit))
       matches <- cbind(as.numeric(cbind(matchit.fit$match.matrix,row.names(matchit.fit$match.matrix))),rep(1:nrow(matchit.fit$match.matrix),ncol(matchit.fit$match.matrix)+1))
       matches <- data.table(dati[matches[,1],])[,pairing:=matches[,2]]
-      matches[,caldoy:= NULL]
-      matches[,byid:= NULL]
-      matches[,casecontrol:= NULL]
+      matches <-  matches[,list(date,pairing)]
       setkeyv(matches,"date")
       setkeyv(matchedout,"date")
       matched.sample <- rbind(matched.sample,matches[matchedout])
