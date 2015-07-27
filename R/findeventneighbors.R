@@ -52,7 +52,7 @@ findeventneighbors <- function(date,event,days=0, by){
   
   #indicator flag
   noteligibledays[,eligible:=FALSE]
-  dat <- merge(noteligibledays,dat, all=TRUE)
+  dat <- noteligibledays[dat]
   dat[event==FALSE & is.na(eligible), eligible:=TRUE]
   
   setkeyv(bydt,"byid")
