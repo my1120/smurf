@@ -1,7 +1,7 @@
 
 
 #-------------------------------------------------------------------------------------------------
-#' @title Calcualte highest posterior density intervals for MCMC sample
+#' @title Calculate highest posterior density intervals for MCMC sample
 #'
 #' @description this function finds the highest posterior density intervals for a vector x.
 #' @param x A numeric vector to summarize.

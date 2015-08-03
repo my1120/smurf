@@ -5,7 +5,7 @@
 \title{Match}
 \usage{
 mtch(date, casecontrol, matchvars = NULL, mahdoy = FALSE, caldays = Inf,
-  by, ratio = 1, seed...)
+  by, ratio = 1, seed, ...)
 }
 \arguments{
 \item{date}{A vector of dates.}

@@ -2,6 +2,8 @@
 
 export(findeventneighbors)
 export(findevents)
+export(hpd)
+export(jackse)
 export(lag)
 export(matchmahal)
 export(mtch)
