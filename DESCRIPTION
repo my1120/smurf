@@ -1,10 +1,16 @@
 Package: smurf
 Type: Package
 Title: Some Useful R Functions
-Version: 1.0
+Version: 1.1.0
 Date: 2015-07-09
-Author: Ander Wilson
-Maintainer: Ander Wilson <awilson@hsph.harvard.edu>
-Description: This package contains some useful functions that were written for varios projects, collaborators, and examples.
+Authors@R: c(person("Meilin", "Yan",
+    email = "meilin.yan@colostate.edu", role = c("aut", "cre")),
+    person("Ander", "Wilson",
+    email = "ander.wilson@colostate.edu", role = "aut"),
+    person("Brooke", "Anderson",
+    email = "brooke.anderson@colostate.edu", role = "aut"))
+Description: This package contains some useful functions that were written for various projects, 
+   collaborators, and examples.
 License: MIT + file LICENSE
+RoxygenNote: 6.0.1
 
