@@ -14,6 +14,12 @@ library(smurf)
 library(dplyr)
 library(forcats)
 library(ggplot2)
+library(lubridate)
+library(lme4)
+library(splines)
+
+# devtools::install_github("sakoehler7/eesim")
+library(eesim)
 ```
 
 # Overview of the package
@@ -41,6 +47,8 @@ chic %>%
   scale_color_manual(values = c("black", "red")) + 
   theme(legend.position = "top") 
 ```
+
+### Creating a matched dataset
 
 This dataset has `r sum(chic$extreme_heat)` days that are extreme events. The `smurf` package can be used to find one or more matching control days for each of these extreme event days, matching on time of year and day of week. 
 
@@ -168,5 +176,64 @@ chic_matched_avoid$data %>%
   theme(legend.position = "bottom")
 ```
 
+### Using matched data in an analysis
+
+```{r}
+chic <- chicagoNMMAPS %>% 
+  select(date, dow, cvd, temp) %>% 
+  mutate(extreme_heat = temp >= quantile(temp, probs = 0.995))
+
+chic_avoid <- findeventneighbors(date = chic$date, event = chic$extreme_heat, days = 7)
+chic_matched_avoid <- mtch(date = chic_avoid$date,
+                           casecontrol = chic_avoid$casecontrol,
+                           matchvars = matrix(as.numeric(factor(chic$dow)), ncol = 1),
+                           caldays = 14,
+                           mahdoy = TRUE, 
+                           ratio = 20)
+
+chic_matched <- chic_matched_avoid$data %>% 
+  left_join(select(chicagoNMMAPS, date, cvd, dow), by = "date") 
+```
+
+Conditional Poisson model:
+
+```{r}
+library(gnm)
+matched_mod <- gnm(cvd ~ casecontrol + factor(year(date)), data = chic_matched, 
+                   family = poisson, eliminate = factor(pairing))
+summary(matched_mod)$coef["casecontrol", ]
+```
+
+Poisson regression, breaking the match:
+
+```{r}
+matched_mod <- glm(cvd ~ casecontrol + factor(year(date)) + factor(pairing), data = chic_matched, 
+                   family = poisson)
+summary(matched_mod)$coef["casecontrol", ]
+```
+
+Random effects model: 
+
+```{r}
+re_mod <- glmer(cvd ~ casecontrol + factor(year(date)) + (1 | pairing),
+               data = chic_matched, family = poisson)
+summary(re_mod)$coef["casecontrol", ]
+```
+
+Time series model with spline for long-term and seasonal control: 
+
+```{r}
+unmatched_mod <- glm(cvd ~ extreme_heat + ns(date, 7 * 14) + factor(dow), data = chic, 
+                     family = poisson)
+summary(unmatched_mod)$coef["extreme_heatTRUE", ]
+```
+
+Case-crossover model with year-month-day of week strata: 
+
+```{r}
+casecontrol_mod <- gnm(cvd ~ extreme_heat, data = chic, 
+                   family = poisson, eliminate = factor(format(chic$date, "%Y-%m-%w")))
+summary(casecontrol_mod)$coef["extreme_heatTRUE", ]
+```
 
 # Details about the package
