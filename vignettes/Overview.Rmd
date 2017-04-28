@@ -76,5 +76,97 @@ chic_matched$data %>%
   theme(legend.position = "bottom")
 ```
 
+You can use the `ratio` argument of `mtch` to pull more control days to match with each event day. For example:
+
+```{r}
+chic_matched_5controls <- mtch(date = chic$date,
+                     casecontrol = chic$extreme_heat, 
+                     caldays = 14,
+                     ratio = 5,
+                     seed = 1235)
+```
+
+```{r echo = FALSE, fig.height = 8, fig.width = 6, fig.align = "center"}
+chic_matched_5controls$data %>% 
+  select(date, pairing) %>% 
+  filter(pairing %in% sample(unique(chic_matched$data$pairing), size = 3)) %>% 
+  right_join(data_frame(date = seq.Date(from = as.Date("1987-01-01"), 
+                                        to = as.Date("2000-12-31"), by = 1)),
+             by = "date") %>% 
+  mutate(pairing = ifelse(is.na(pairing), 0, pairing),
+         pairing = factor(pairing),
+         pairing = fct_relevel(pairing, "0", after = Inf)) %>% 
+  eesim::calendar_plot(type = "discrete", labels = c("A", "B", "C", "None"),
+                       legend_name = "Matching set") + 
+  theme(legend.position = "bottom")
+```
+
+You can force matching by other variables in addition to time of year. For example, the following call will provide data that is also matched by day of week:
+
+```{r}
+chic_matched_dow <- mtch(date = chic$date,
+                     casecontrol = chic$extreme_heat, 
+                     matchvars = matrix(as.numeric(factor(chic$dow)), ncol = 1),
+                     caldays = 14,
+                     mahdoy = TRUE,
+                     ratio = 2,
+                     seed = 1235)
+```
+
+```{r echo = FALSE, fig.height = 8, fig.width = 6, fig.align = "center"}
+chic_matched_dow$data %>% 
+  select(date, pairing) %>% 
+  filter(pairing %in% sample(unique(chic_matched$data$pairing), size = 3)) %>% 
+  right_join(data_frame(date = seq.Date(from = as.Date("1987-01-01"), 
+                                        to = as.Date("2000-12-31"), by = 1)),
+             by = "date") %>% 
+  mutate(pairing = ifelse(is.na(pairing), 0, pairing),
+         pairing = factor(pairing),
+         pairing = fct_relevel(pairing, "0", after = Inf)) %>% 
+  eesim::calendar_plot(type = "discrete", labels = c("A", "B", "C", "None"),
+                       legend_name = "Matching set") + 
+  theme(legend.position = "bottom")
+```
+
+If you would like to avoid picked matched control days that are near other events, you can do that by first running `findeventneighbors` to identify days that, while not events, are close to events and then use the output make those days missing in the `casecontrol` input to `mtch`. For example, you can use the following call to find days that are within seven days of an event for the Chicago extreme heat day example:
+
+```{r}
+chic_avoid <- findeventneighbors(date = chic$date, event = chic$extreme_heat, days = 7)
+```
+
+This returns a data frame with logical columns for whether each day is an `event` and whether it is `eligible` to be selected as a matched day for an event day. It also returns a column named `casecontrol` that has 0 for an eligible non-event day, 1 for an event day, and `NA` for an ineligible non-event day: 
+
+```{r}
+chic_avoid %>% 
+  group_by(casecontrol) %>% 
+  slice(1:2)
+```
+
+The `casecontrol` column from this output can then be used as input to the `mtch` function:
+
+```{r}
+chic_matched_avoid <- mtch(date = chic_avoid$date,
+                     casecontrol = chic_avoid$casecontrol,, 
+                     matchvars = matrix(as.numeric(factor(chic$dow)), ncol = 1),
+                     caldays = 14,
+                     mahdoy = TRUE, 
+                     ratio = 2)
+```
+
+```{r echo = FALSE, fig.height = 8, fig.width = 6, fig.align = "center"}
+chic_matched_avoid$data %>% 
+  select(date, pairing) %>% 
+  filter(pairing %in% sample(unique(chic_matched$data$pairing), size = 3)) %>% 
+  right_join(data_frame(date = seq.Date(from = as.Date("1987-01-01"), 
+                                        to = as.Date("2000-12-31"), by = 1)),
+             by = "date") %>% 
+  mutate(pairing = ifelse(is.na(pairing), 0, pairing),
+         pairing = factor(pairing),
+         pairing = fct_relevel(pairing, "0", after = Inf)) %>% 
+  eesim::calendar_plot(type = "discrete", labels = c("A", "B", "C", "None"),
+                       legend_name = "Matching set") + 
+  theme(legend.position = "bottom")
+```
+
 
 # Details about the package

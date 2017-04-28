@@ -80,7 +80,7 @@ mtch <- function(date, casecontrol, matchvars = NULL, mahdoy = FALSE, caldays = 
           matchit.fit <- MatchIt::matchit(casecontrol ~ caldoy, data = dati, method = "nearest",
                                           caliper = caldays / stats::sd(dati$caldoy),
                                           ratio = ratio, ...)
-        }else{
+        } else {
           matchit.fit <- MatchIt::matchit(casecontrol ~ caldoy, data = dati, method = "nearest",
                                           caliper = caldays / stats::sd(dati$caldoy), 
                                           mahvars = colnames(dati)[-which(colnames(dati) %in% (c("casecontrol", "byid", "date", "caldoy")))], 
