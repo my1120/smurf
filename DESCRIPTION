@@ -22,6 +22,10 @@ Imports:
 Depends:
     R (>= 2.10)
 Suggests: 
+    dlnm,
+    dplyr,
+    forcats,
+    ggplot2,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
