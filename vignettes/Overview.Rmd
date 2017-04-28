@@ -1,0 +1,80 @@
+---
+title: "Overview of using the `smurf` package"
+author: "Meilin Yan, Brooke Anderson, and Ander Wilson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Overview of using the smurf package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r message = FALSE, warning = FALSE, echo = FALSE}
+library(smurf)
+library(dplyr)
+library(forcats)
+library(ggplot2)
+```
+
+# Overview of the package
+
+# Basic example
+
+As a basic example, we'll show how to use the `smurf` package to find matching days for a matched cohort study of extreme heat days and cardiovascular mortality. The `dlnm` package includes an example dataset, `chicagoNMMAPS`, with daily temperature (`temp`, in degrees Celsius) and cardiovascular mortality (`cvd`) data for Chicago, IL, for 1987--2000. 
+
+```{r message = FALSE}
+library(dlnm)
+data(chicagoNMMAPS)
+chic <- chicagoNMMAPS %>% 
+  select(date, dow, cvd, temp)
+slice(chic, 1:4)
+```
+
+For this example, we'll define an extreme heat day as a day for which the temperature is equal to or above the 99.5\textsuperscipt{th} percentile of Chicago's year-round temperature distribution over the study period: 
+
+```{r fig.width = 6, fig.height = 2.75, fig.align = "center"}
+chic <- chic %>% 
+  mutate(extreme_heat = temp >= quantile(temp, probs = 0.995))
+chic %>% 
+  ggplot(aes(x = date, y = temp, color = extreme_heat)) + 
+  geom_point(alpha = 0.4, size = 0.5) + 
+  scale_color_manual(values = c("black", "red")) + 
+  theme(legend.position = "top") 
+```
+
+This dataset has `r sum(chic$extreme_heat)` days that are extreme events. The `smurf` package can be used to find one or more matching control days for each of these extreme event days, matching on time of year and day of week. 
+
+```{r}
+chic_matched <- mtch(date = chic$date,
+                     casecontrol = chic$extreme_heat, 
+                     caldays = 14,
+                     ratio = 1,
+                     seed = 1235)
+```
+
+The returned object has three elements. First, the `data` element gives a dataset of the extreme days and their matched control days. For example, here are the first three matched sets: 
+
+```{r}
+chic_matched$data %>% 
+  filter(pairing %in% c(1:3)) 
+```
+
+Here are three random matched sets based on this matching:
+
+```{r echo = FALSE, fig.height = 8, fig.width = 6, fig.align = "center"}
+chic_matched$data %>% 
+  select(date, pairing) %>% 
+  filter(pairing %in% sample(unique(chic_matched$data$pairing), size = 3)) %>% 
+  right_join(data_frame(date = seq.Date(from = as.Date("1987-01-01"), 
+                                        to = as.Date("2000-12-31"), by = 1)),
+             by = "date") %>% 
+  mutate(pairing = ifelse(is.na(pairing), 0, pairing),
+         pairing = factor(pairing),
+         pairing = fct_relevel(pairing, "0", after = Inf)) %>% 
+  eesim::calendar_plot(type = "discrete", labels = c("A", "B", "C", "None"),
+                       legend_name = "Matching set") + 
+  theme(legend.position = "bottom")
+```
+
+
+# Details about the package
