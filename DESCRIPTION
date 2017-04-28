@@ -17,8 +17,8 @@ BugReports: https://github.com/my1120/smurf/issues
 RoxygenNote: 6.0.1
 LazyData: TRUE
 Imports: 
-    data.table,
-    MatchIt
+    data.table (>= 1.10.4),
+    MatchIt (>= 3.0.1)
 Depends:
     R (>= 2.10)
 Suggests: 
