@@ -42,9 +42,9 @@ mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,rat
     by <- NA
   }else{
     by <- data.table::data.table(by)
-    setkeyv(by, names(by))
+    data.table::setkeyv(by, names(by))
     bydt <- unique(by)
-    setkeyv(bydt, names(bydt))
+    data.table::setkeyv(bydt, names(bydt))
     bydt[,byid:=1:nrow(bydt)]
     bydt <- bydt[by]
   }
@@ -60,28 +60,28 @@ mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,rat
   dat <- unique(dat)
   dat[,caldoy:=as.POSIXlt(dat$date)$yday-365/2]
   
-  matched.sample <- sum.matched <- nn <- data.table()
+  matched.sample <- sum.matched <- nn <- data.table::data.table()
   for(i in unique(dat[,(byid)])){
     #make matching data for county
     dati <- dat[byid==i]
-    dati <- as.data.frame(dati[complete.cases(dati),])
+    dati <- as.data.frame(dati[stats::complete.cases(dati),])
     
     if(nrow(subset(dati,casecontrol==1))>0){
       row.names(dati) <- as.character(1:nrow(dati))
       #match the sample
         if(is.null(matchvars)){
-          matchit.fit <- MatchIt::matchit(casecontrol~caldoy, data=dati, method="nearest", caliper=caldays/sd(dati$caldoy), ratio=ratio,...)
+          matchit.fit <- MatchIt::matchit(casecontrol~caldoy, data=dati, method="nearest", caliper=caldays/stats::sd(dati$caldoy), ratio=ratio,...)
         }else{
-          matchit.fit <- MatchIt::matchit(casecontrol~caldoy, data=dati, method="nearest", caliper=caldays/sd(dati$caldoy), mahvars=colnames(dati)[-which(colnames(dati)%in%(c("casecontrol","byid","date","caldoy")))], ratio=ratio,...)
+          matchit.fit <- MatchIt::matchit(casecontrol~caldoy, data=dati, method="nearest", caliper=caldays/stats::sd(dati$caldoy), mahvars=colnames(dati)[-which(colnames(dati)%in%(c("casecontrol","byid","date","caldoy")))], ratio=ratio,...)
         }
       
       #save match
       matchedout <- data.table::data.table(MatchIt::match.data(matchit.fit))
       matches <- cbind(as.numeric(cbind(matchit.fit$match.matrix,row.names(matchit.fit$match.matrix))),rep(1:nrow(matchit.fit$match.matrix),ncol(matchit.fit$match.matrix)+1))
-      matches <- data.table(dati[matches[,1],])[,pairing:=matches[,2]]
+      matches <- data.table::data.table(dati[matches[,1],])[,pairing:=matches[,2]]
       matches <-  matches[,list(date,pairing)]
-      setkeyv(matches,"date")
-      setkeyv(matchedout,"date")
+      data.table::setkeyv(matches,"date")
+      data.table::setkeyv(matchedout,"date")
       matched.sample <- rbind(matched.sample,matches[matchedout])
       
       #save statistics on number matched
@@ -98,10 +98,10 @@ mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,rat
     }
   }
  
-  setkeyv(bydt,"byid") 
-  setkeyv(matched.sample,c("byid","date")) 
-  setkeyv(nn,"byid") 
-  setkeyv(sum.matched,"byid") 
+  data.table::setkeyv(bydt,"byid") 
+  data.table::setkeyv(matched.sample,c("byid","date")) 
+  data.table::setkeyv(nn,"byid") 
+  data.table::setkeyv(sum.matched,"byid") 
   sum.matched <- unique(bydt)[sum.matched]
   nn <- unique(bydt)[nn]
   data <- unique(bydt)[matched.sample]

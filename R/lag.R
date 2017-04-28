@@ -23,31 +23,31 @@ lag <- function(date,x,lags=1, by){
     by <- NA
   }else{
     by <- data.table::data.table(by)
-    setkeyv(by, names(by))
+    data.table::setkeyv(by, names(by))
     bydt <- unique(by)
-    setkeyv(bydt, names(bydt))
+    data.table::setkeyv(bydt, names(bydt))
     bydt[,byid:=1:nrow(bydt)]
     bydt <- bydt[by]
   }
   
-  dat <- data.table(date=date,xlag0=x,byid=bydt$byid)
-  setkeyv(dat,c("byid","date"))
+  dat <- data.table::data.table(date=date,xlag0=x,byid=bydt$byid)
+  data.table::setkeyv(dat,c("byid","date"))
   dat <- unique(dat)
   
-  dat2 <- copy(dat)
-  setnames(dat2,"xlag0","xtemp")
+  dat2 <- data.table::copy(dat)
+  data.table::setnames(dat2,"xlag0","xtemp")
   
   # for i in 1:K makes lags up to K days.
   if(lags>0){
     for(i in 1:lags){
       dat2[,date:=date+1]
-      setkeyv(dat2,c("byid","date"))
+      data.table::setkeyv(dat2,c("byid","date"))
       dat <- dat2[dat]
-      setnames(dat,"xtemp",paste0("xlag",i))
+      data.table::setnames(dat,"xtemp",paste0("xlag",i))
     }
   }
   
-  setkeyv(bydt,"byid")
+  data.table::setkeyv(bydt,"byid")
   dat <- unique(bydt)[dat]
   dat[,byid:=NULL]
   

@@ -37,19 +37,19 @@ matchmahal <- function(date,casecontrol,matchvars,by,ratio=1,datewindow,...){
     by <- NA
   }else{
     by <- data.table::data.table(by)
-    setkeyv(by, names(by))
+    data.table::setkeyv(by, names(by))
     bydt <- unique(by)
-    setkeyv(bydt, names(bydt))
+    data.table::setkeyv(bydt, names(bydt))
     bydt[,byid:=1:nrow(bydt)]
     bydt <- bydt[by]
   }
   
-  dat<- data.table(matchvars)
+  dat<- data.table::data.table(matchvars)
   dat[,casecontrol:=casecontrol]
   dat[,byid:=bydt[,(byid)]]
   dat[,date:=date]
   
-  form <- formula(paste0("casecontrol~",paste(colnames(dat)[-which(colnames(dat)%in%c("casecontrol","byid","date"))],collapse="+")))
+  form <- stats::formula(paste0("casecontrol~",paste(colnames(dat)[-which(colnames(dat)%in%c("casecontrol","byid","date"))],collapse="+")))
   
   
   matched.sample <- sum.matched <- nn <- data.table()
@@ -57,7 +57,7 @@ matchmahal <- function(date,casecontrol,matchvars,by,ratio=1,datewindow,...){
     print(i)
     #make matching data for county
     dati <- dat[byid==i]
-    dati <- dati[complete.cases(dati),]
+    dati <- dati[stats::complete.cases(dati),]
     
     if(nrow(dati[casecontrol==1])>0){
       #limit to time window
@@ -69,26 +69,26 @@ matchmahal <- function(date,casecontrol,matchvars,by,ratio=1,datewindow,...){
       matchit.fit <- MatchIt::matchit(form, data=dati, distance="mahalanobis", method="nearest", ratio=ratio,...)
       
       #save match
-      matched.sample <- rbind(matched.sample,data.table(match.data(matchit.fit)))
+      matched.sample <- rbind(matched.sample,data.table(MatchIt::match.data(matchit.fit)))
       
       #save statistics on number matched
-      temp.nn <- data.table(matchit.fit$nn)
+      temp.nn <- data.table::data.table(matchit.fit$nn)
       temp.nn[,type:=row.names(matchit.fit$nn)]
       temp.nn[,byid:=i]
       nn <- rbind(nn,temp.nn)
       
       #add this
-      temp.sum.matched <- data.table(summary(matchit.fit)$sum.matched)
+      temp.sum.matched <- data.table::data.table(summary(matchit.fit)$sum.matched)
       temp.sum.matched[,type:=row.names(summary(matchit.fit)$sum.matched)]
       temp.sum.matched[,byid:=i]
       sum.matched <- rbind(sum.matched,temp.sum.matched)
     }
   }
   
-  setkeyv(bydt,"byid") 
-  setkeyv(matched.sample,c("byid","date")) 
-  setkeyv(nn,"byid") 
-  setkeyv(bydt,"byid") 
+  data.table::setkeyv(bydt,"byid") 
+  data.table::setkeyv(matched.sample,c("byid","date")) 
+  data.table::setkeyv(nn,"byid") 
+  data.table::setkeyv(bydt,"byid") 
   sum.matched <- unique(bydt)[sum.matched]
   nn <- unique(bydt)[nn]
   data <- unique(bydt)[matched.sample]
