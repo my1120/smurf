@@ -1,32 +1,34 @@
 #' Match
 #'
-#' This function finds matches for the events without a strata and withing a time window. The 
-#' Mahalanobis-metric can be used to match on other variables as well. It is a wrapper for the 
-#' matchit function from the \code{MatchIt} package.
+#' Finds matches for the events without a strata and within a time window. The Mahalanobis-metric 
+#' can be used to match on other variables as well. This function is a wrapper for the 
+#' \code{matchit} function from the \code{MatchIt} package.
 #' 
 #' @param date A vector of dates. 
 #' @param casecontrol A vector where 1 indentifies events, 0 identifies potential controls, and 
-#'    \code{NA} represent non-event days that are not eligible to be matched (e.g. missing data, 
-#'    or excluded for some other reason).
+#'    \code{NA} represent non-event days that are ineligible as matches (e.g. because of missing data, 
+#'    or they are too close to other event days, as determined by \code{findeventneighbors}).
 #' @param matchvars A matrix where the columns represent variables that will be matched on using 
 #'    the Mahalanobis distrance and nearest neighbor. 
 #' @param mahdoy A logical indicating if the day of year should be included in the 
 #'    Mahalanobis-metric matching within the caliper. The default is FALSE. If TRUE then the 
 #'    distance to the treatment day based on day of year will be included with the other matching 
 #'    variables.
-#' @param caldays The number of days that matched value will be selected from. This ignors year 
-#'    but only looks at date and month. For example, if caldays=7 then the pairs will be from 
-#'    within 7 days of the control (inclusive).
-#' @param by A vector of ids or a matrix with columns as the id variables. The events will be 
-#'    found separately within each unique combination of id variables. This is optional.
-#' @param ratio The number of control units to be matched to each case. The default is 1.  See 
+#' @param caldays The number of days that matched value will be selected from. This ignores year 
+#'    but only looks at date and month. For example, if \code{caldays} is set to 7 then the control 
+#'    day will be from within 7 days of the day of the year of the event day (inclusive).
+#' @param by A vector of IDs or a matrix with columns as the ID variables. The events will be 
+#'    found separately within each unique combination of ID variables. For example, if the dataset
+#'    includes multiple cities, `by` could be used to ensure that matching is always done within 
+#'    city. 
+#' @param ratio The number of control days to be matched to each event day. The default is 1.  See 
 #'    documentation for \code{matchit} for more details. 
 #' @param seed A seed for a random number generator.
-#' @param ... Additional arguments to be passed to \code{match.it}
+#' @param ... Additional arguments to be passed to \code{matchit}
 #' 
-#' @return data A \code{data.table} object of matched cases and controls.
-#' @return nn A summary of the number if cases and controls that were matched. See documentation 
-#'    for \code{matchit} for more details.
+#' @return data A \code{data.table} object of event days and their matched controls.
+#' @return nn A summary of the number of event days and controls in the final matched dataset. 
+#'    See documentation for \code{matchit} for more details.
 #' @return sum.matched A summary of the quality of each match. See documentation for 
 #'    \code{matchit} for more details.
 #'    
@@ -37,41 +39,45 @@
 #' @importFrom data.table :=
 #' 
 #' @export
-mtch <- function(date,casecontrol,matchvars=NULL,mahdoy=FALSE,caldays=Inf,by,ratio=1,seed,...){
-  if(!missing(seed)) set.seed(seed)
-  if(missing(by)) {
-    by <- NA
-  } else {
-    by <- data.table::data.table(by)
-    data.table::setkeyv(by, names(by))
-    bydt <- unique(by)
-    data.table::setkeyv(bydt, names(bydt))
-    bydt[ , byid := 1:nrow(bydt)]
-    bydt <- bydt[by]
-  }
+mtch <- function(date, casecontrol, matchvars = NULL, mahdoy = FALSE, caldays = Inf, by = NULL, 
+                 ratio = 1, seed = NULL, ...){
+  
+  if(!is.null(seed)) set.seed(seed)
+  
+  if(is.null(by)) by <- rep(1, length(date))
+  by <- data.table::data.table(by)
+  if(is.null(by)) names(by) <- "group 1"
+  data.table::setkeyv(by, names(by))
+  bydt <- unique(by)
+  data.table::setkeyv(bydt, names(bydt))
+  bydt[ , byid := 1:nrow(bydt)]
+  bydt <- bydt[by]
   
   if(!is.null(matchvars)){
-    dat<- data.table::data.table(matchvars)
-  }else{
+    dat <- data.table::data.table(matchvars)
+  } else {
     dat <- data.table::data.table(casecontrol)
   }
+  
   dat[ , casecontrol := casecontrol]
   dat[ , byid := bydt[ , (byid)]]
-  dat[ , date:=date]
+  dat[ , date := date]
   dat <- unique(dat)
   dat[ , caldoy := as.POSIXlt(dat$date)$yday - 365 / 2]
   
   matched.sample <- sum.matched <- nn <- data.table::data.table()
+  
   for(i in unique(dat[ , (byid)])){
     #make matching data for county
     dati <- dat[byid == i]
     dati <- as.data.frame(dati[stats::complete.cases(dati), ])
     
+    # If there is at least one event day in the time series for the group, ...
     if(nrow(subset(dati, casecontrol == 1)) > 0){
       row.names(dati) <- as.character(1:nrow(dati))
       #match the sample
         if(is.null(matchvars)){
-          matchit.fit <- MatchIt::matchit(casecontrol ~ caldoy, data=dati, method = "nearest",
+          matchit.fit <- MatchIt::matchit(casecontrol ~ caldoy, data = dati, method = "nearest",
                                           caliper = caldays / stats::sd(dati$caldoy),
                                           ratio = ratio, ...)
         }else{
