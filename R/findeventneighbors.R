@@ -18,18 +18,15 @@
 #' @importFrom data.table :=
 #' 
 #' @export
-findeventneighbors <- function(date, event, days = 0, by){
+findeventneighbors <- function(date, event, days = 0, by = NULL){
   
-  if(missing(by)) {
-    by <- NA
-  } else {
-    by <- data.table::data.table(by)
-    data.table::setkeyv(by, names(by))
-    bydt <- unique(by)
-    data.table::setkeyv(bydt, names(bydt))
-    bydt[ , byid := 1:nrow(bydt)]
-    bydt <- bydt[by]
-  }
+  if(is.null(by)) by <- rep(1, length(date))
+  by <- data.table::data.table(by)
+  data.table::setkeyv(by, names(by))
+  bydt <- unique(by)
+  data.table::setkeyv(bydt, names(bydt))
+  bydt[ , byid := 1:nrow(bydt)]
+  bydt <- bydt[by]
   
   dat <- data.table::data.table(date = date, event = event, byid = bydt$byid)
   data.table::setkeyv(dat,c("byid","date"))
