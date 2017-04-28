@@ -17,6 +17,7 @@
 #'    number of days of the range of events. For example, if the events occur on days 100, 101, 
 #'    150, 151, 152 of the year and datewindow=7 then control days will have day of years in the 
 #'    range of 93 to 159. If missing then all days are eligible.
+#' @param ... Additional arguments to be passed to [?]
 #'    
 #' @return data A \code{data.table} object of matched cases and controls.
 #' @return nn A summary of the number if cases and controls that were matched. See documentation 

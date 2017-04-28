@@ -3,7 +3,8 @@
 #' Find the highest posterior density intervals for a vector x.
 #' 
 #' @param x A numeric vector to summarize.
-#' @param prop The probability that the interval will contain. The default is 0.95.
+#' @param prob The probability that the interval will contain. The default is 0.95.
+#' @param ... Additional arguments to be passed to ...
 #' 
 #' @return The endpoints of the interval
 #' 

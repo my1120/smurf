@@ -22,6 +22,7 @@
 #' @param ratio The number of control units to be matched to each case. The default is 1.  See 
 #'    documentation for \code{matchit} for more details. 
 #' @param seed A seed for a random number generator.
+#' @param ... Additional arguments to be passed to [?]
 #' 
 #' @return data A \code{data.table} object of matched cases and controls.
 #' @return nn A summary of the number if cases and controls that were matched. See documentation 

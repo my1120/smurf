@@ -9,7 +9,9 @@ hpd(x, prob = 0.95)
 \arguments{
 \item{x}{A numeric vector to summarize.}
 
-\item{prop}{The probability that the interval will contain. The default is 0.95.}
+\item{prob}{The probability that the interval will contain. The default is 0.95.}
+
+\item{...}{Additional arguments to be passed to ...}
 }
 \value{
 The endpoints of the interval

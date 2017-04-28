@@ -33,6 +33,8 @@ found separately within each unique combination of id variables. This is optiona
 documentation for \code{matchit} for more details.}
 
 \item{seed}{A seed for a random number generator.}
+
+\item{...}{Additional arguments to be passed to [?]}
 }
 \value{
 data A \code{data.table} object of matched cases and controls.
