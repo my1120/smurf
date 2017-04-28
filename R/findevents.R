@@ -1,23 +1,32 @@
-
-#-------------------------------------------------------------------------------------------------
-#' @title Find events
+#' Find events
 #'
-#' @description This function finds events (e.g. heat waves or ozone events). The approach is to find consecutive days that are above a thresholds.
+#' This function finds events (e.g. heat waves or ozone events). The approach is to find 
+#' consecutive days that are above a thresholds.
+#' 
 #' @param date A vector of dates. 
 #' @param x The exposure variable (e.g. temperature for heat waves or ozone for ozone events)
 #' @param xmin The minimum value that x must be for at least mindays to qualify as an event.
 #' @param mindays The minimum number of consecutive days that qualify as an event.
-#' @param by A vector of ids or a matrix with columns as the id variables. The events will be found separately within each unique combination of id variables. This is optional.
-#' @return Returns a data.table with the columns for by, x, date as well as the following new variables: above and indivator the x>xmin; above_fromstart number of consecutive days that have exceeded xmin through the current date; above_toend the number of remaining days that are above xmin; length the total number of consecutive days that are above xmin; event a logical indivatring a day is part of an event.  
+#' @param by A vector of ids or a matrix with columns as the id variables. The events will be 
+#'    found separately within each unique combination of id variables. This is optional.
+#'    
+#' @return Returns a data.table with the columns for by, x, date as well as the following new 
+#'    variables: above and indivator the x>xmin; above_fromstart number of consecutive days that 
+#'    have exceeded xmin through the current date; above_toend the number of remaining days that 
+#'    are above xmin; length the total number of consecutive days that are above xmin; event a 
+#'    logical indivatring a day is part of an event.  
+#'    
 #' @author Ander Wilson
-#' @import data.table
+#' 
+#' @importFrom data.table :=
+#' 
 #' @export
 findevents <- function(date,x,xmin,mindays=2, by){
   
   if(missing(by)){
     by <- NA
   }else{
-    by <- data.table(by)
+    by <- data.table::data.table(by)
     setkeyv(by, names(by))
     bydt <- unique(by)
     setkeyv(bydt, names(bydt))
@@ -25,7 +34,7 @@ findevents <- function(date,x,xmin,mindays=2, by){
     bydt <- bydt[by]
   }
   
-  dat <- data.table(date=date,x=x,byid=bydt$byid)
+  dat <- data.table::data.table(date=date,x=x,byid=bydt$byid)
   setkeyv(dat,c("byid","date"))
   dat[,above:=1*(x>xmin)]
   dat[,above_fromstart:=above]

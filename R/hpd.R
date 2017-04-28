@@ -1,16 +1,15 @@
-
-
-#-------------------------------------------------------------------------------------------------
-#' @title Calculate highest posterior density intervals for MCMC sample
+#' Calculate highest posterior density intervals for MCMC sample
 #'
-#' @description this function finds the highest posterior density intervals for a vector x.
+#' Find the highest posterior density intervals for a vector x.
+#' 
 #' @param x A numeric vector to summarize.
 #' @param prop The probability that the interval will contain. The default is 0.95.
+#' 
 #' @return The endpoints of the interval
+#' 
 #' @author Ander Wilson
+#' 
 #' @export
-  
-
 hpd <- function(x, prob=0.95){
   x <- x[order(x)]
   size <- round(length(x)*prob)

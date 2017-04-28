@@ -1,26 +1,42 @@
-#-------------------------------------------------------------------------------------------------
-#' @title Match with Mahalanobis
+#' Match with Mahalanobis
 #'
-#' @description This function finds matches for the events without a strata sing the Mahalanobis distrance and nearest neighbor. It is a wrapper for the matchit function from the MatchIt package.
+#' This function finds matches for the events without a strata sing the Mahalanobis distrance and 
+#' nearest neighbor. It is a wrapper for the \code{matchit} function from the \code{MatchIt} package.
+#' 
 #' @param date A vector of dates. 
-#' @param casecontrol A vector where 1 indentifies events, 0 identifies potential controls, and NA represent non-event days that are not eligible to be matched (e.g. missing data, or excluded for some other reason).
-#' @param matchvars A matrix where the columns represent variables that will be matched on using the Mahalanobis distrance and nearest neighbor.
-#' @param by A vector of ids or a matrix with columns as the id variables. The events will be found separately within each unique combination of id variables. This is optional.
-#' @param ratio The number of control units to be matched to each case. The default is 1.  See documentation for matchit for more details. 
-#' @param datewindow A scalar that limits the potential control days to be within a a particular number of days of the range of events. For example, if the events occur on days 100, 101, 150, 151, 152 of the year and datewindow=7 then control days will have day of years in the range of 93 to 159. If missing then all days are eligible.
-#' @return data A data.table of matched cases and controls.
-#' @return nn A summary of the number if cases and controls that were matched. See documentation for matchit for more details.
-#' @return sum.matched A summary of the quality of each match. See documentation for matchit for more details.
+#' @param casecontrol A vector where 1 indentifies events, 0 identifies potential controls, and 
+#'    \code{NA} represent non-event days that are not eligible to be matched (e.g. missing data, or 
+#'    excluded for some other reason).
+#' @param matchvars A matrix where the columns represent variables that will be matched on using 
+#'    the Mahalanobis distrance and nearest neighbor.
+#' @param by A vector of ids or a matrix with columns as the id variables. The events will be found 
+#'    separately within each unique combination of id variables. This is optional.
+#' @param ratio The number of control units to be matched to each case. The default is 1.  See 
+#'    documentation for matchit for more details. 
+#' @param datewindow A scalar that limits the potential control days to be within a a particular 
+#'    number of days of the range of events. For example, if the events occur on days 100, 101, 
+#'    150, 151, 152 of the year and datewindow=7 then control days will have day of years in the 
+#'    range of 93 to 159. If missing then all days are eligible.
+#'    
+#' @return data A \code{data.table} object of matched cases and controls.
+#' @return nn A summary of the number if cases and controls that were matched. See documentation 
+#'    for \code{matchit} for more details.
+#' @return sum.matched A summary of the quality of each match. See documentation for \code{matchit} 
+#'    for more details.
+#'    
 #' @author Ander Wilson
+#' 
 #' @seealso MatchIt
-#' @import data.table MatchIt
+#' 
+#' @importFrom data.table :=
+#' 
 #' @export
 matchmahal <- function(date,casecontrol,matchvars,by,ratio=1,datewindow,...){
   
   if(missing(by)){
     by <- NA
   }else{
-    by <- data.table(by)
+    by <- data.table::data.table(by)
     setkeyv(by, names(by))
     bydt <- unique(by)
     setkeyv(bydt, names(bydt))
@@ -50,7 +66,7 @@ matchmahal <- function(date,casecontrol,matchvars,by,ratio=1,datewindow,...){
       }
       
       #matchit
-      matchit.fit <- matchit(form, data=dati, distance="mahalanobis", method="nearest", ratio=ratio,...)
+      matchit.fit <- MatchIt::matchit(form, data=dati, distance="mahalanobis", method="nearest", ratio=ratio,...)
       
       #save match
       matched.sample <- rbind(matched.sample,data.table(match.data(matchit.fit)))
@@ -68,10 +84,6 @@ matchmahal <- function(date,casecontrol,matchvars,by,ratio=1,datewindow,...){
       sum.matched <- rbind(sum.matched,temp.sum.matched)
     }
   }
-  
-  
-  
-  
   
   setkeyv(bydt,"byid") 
   setkeyv(matched.sample,c("byid","date")) 
