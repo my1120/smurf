@@ -10,7 +10,19 @@ Authors@R: c(person("Meilin", "Yan",
     person("Brooke", "Anderson",
     email = "brooke.anderson@colostate.edu", role = "aut"))
 Description: This package contains some useful functions that were written for various projects, 
-   collaborators, and examples.
+    collaborators, and examples.
 License: MIT + file LICENSE
+URL: https://github.com/my1120/smurf
+BugReports: https://github.com/my1120/smurf/issues
 RoxygenNote: 6.0.1
+LazyData: TRUE
+Imports: 
+    data.table,
+    MatchIt
+Depends:
+    R (>= 2.10)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
 
