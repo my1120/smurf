@@ -21,54 +21,56 @@
 #' @importFrom data.table :=
 #' 
 #' @export
-findevents <- function(date,x,xmin,mindays=2, by){
+findevents <- function(date, x, xmin, mindays = 2, by){
   
-  if(missing(by)){
+  if(missing(by)) {
     by <- NA
-  }else{
+  } else {
     by <- data.table::data.table(by)
     data.table::setkeyv(by, names(by))
     bydt <- unique(by)
     data.table::setkeyv(bydt, names(bydt))
-    bydt[,byid:=1:nrow(bydt)]
+    bydt[ , byid := 1:nrow(bydt)]
     bydt <- bydt[by]
   }
   
-  dat <- data.table::data.table(date=date,x=x,byid=bydt$byid)
-  data.table::setkeyv(dat,c("byid","date"))
-  dat[,above:=1*(x>xmin)]
-  dat[,above_fromstart:=above]
-  dat[,above_toend:=above]
+  dat <- data.table::data.table(date = date, x = x, byid = bydt$byid)
+  data.table::setkeyv(dat, c("byid", "date"))
+  dat[ , above := 1 * (x > xmin)]
+  dat[ , above_fromstart := above]
+  dat[ , above_toend := above]
   dat <- unique(dat)
   
   kg <- TRUE
   i <- 1
   while(kg){
     #days since begining
-    dt <- dat[,list(byid,date=date+i,temp=1*(above>0))]
-    data.table::setkeyv(dt,c("byid","date"))
+    dt <- dat[ , list(byid, date = date + i, temp = 1 * (above > 0))]
+    data.table::setkeyv(dt, c("byid", "date"))
     dat <- dt[dat]
-    dat[!is.na(above_fromstart) & !is.na(temp) & above_fromstart==i,above_fromstart:=(above_fromstart>0)*(above_fromstart+temp)]
-    dat[,temp:=NULL]
+    dat[!is.na(above_fromstart) & !is.na(temp) & 
+          above_fromstart == i, above_fromstart := (above_fromstart > 0) * (above_fromstart + temp)]
+    dat[ , temp := NULL]
     
     #days until end
-    dt <- dat[,list(byid,date=date-i,temp=1*(above>0))]
-    data.table::setkeyv(dt,c("byid","date"))
+    dt <- dat[ , list(byid, date = date - i, temp = 1 * (above > 0))]
+    data.table::setkeyv(dt, c("byid", "date"))
     dat <- dt[dat]
-    dat[!is.na(above_toend) & !is.na(temp) & above_toend==i,above_toend:=(above_toend>0)*(above_toend+temp)]
-    dat[,temp:=NULL]
+    dat[!is.na(above_toend) & !is.na(temp) & 
+          above_toend == i, above_toend := (above_toend > 0) * (above_toend + temp)]
+    dat[ , temp := NULL]
 
     
-    i <- i+1
-    if(nrow(dat[above_fromstart==i])==0)  kg <- FALSE
+    i <- i + 1
+    if(nrow(dat[above_fromstart == i]) == 0)  kg <- FALSE
   }
   
-  dat[,length:= pmax(above_toend+above_fromstart-1,0)]
+  dat[ , length := pmax(above_toend + above_fromstart - 1, 0)]
   
-  dat[,event:=length>=mindays]
-  data.table::setkeyv(bydt,"byid")
+  dat[ , event := length >= mindays]
+  data.table::setkeyv(bydt, "byid")
   dat <- unique(bydt)[dat]
-  dat[,byid:=NULL]
+  dat[ , byid:=NULL]
   
   return(dat)
 }

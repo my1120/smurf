@@ -18,53 +18,49 @@
 #' @importFrom data.table :=
 #' 
 #' @export
-findeventneighbors <- function(date,event,days=0, by){
+findeventneighbors <- function(date, event, days = 0, by){
   
-  
-  if(missing(by)){
+  if(missing(by)) {
     by <- NA
-  }else{
+  } else {
     by <- data.table::data.table(by)
     data.table::setkeyv(by, names(by))
     bydt <- unique(by)
     data.table::setkeyv(bydt, names(bydt))
-    bydt[,byid:=1:nrow(bydt)]
+    bydt[ , byid := 1:nrow(bydt)]
     bydt <- bydt[by]
   }
   
-  
-  dat <- data.table::data.table(date=date,event=event,byid=bydt$byid)
+  dat <- data.table::data.table(date = date, event = event, byid = bydt$byid)
   data.table::setkeyv(dat,c("byid","date"))
-  
-  
   
   #find days that are within buffer days of a case day
   #these will be excluded
-  noteligibledays <- dat[event==TRUE,list(byid,date)]
-  data.table::setkeyv(noteligibledays,c("byid","date"))
-  if(days>0){
+  noteligibledays <- dat[event == TRUE, list(byid, date)]
+  data.table::setkeyv(noteligibledays, c("byid", "date"))
+  if(days > 0){
     for(i in 1:days){
-      temp <- dat[event==TRUE,list(byid,date)]
-      temp[,date:=date+i]
-      data.table::setkeyv(temp,c("byid","date"))
-      noteligibledays <- merge(noteligibledays,temp, all=TRUE)
+      temp <- dat[event == TRUE, list(byid, date)]
+      temp[ , date := date + i]
+      data.table::setkeyv(temp, c("byid", "date"))
+      noteligibledays <- merge(noteligibledays, temp, all = TRUE)
       
-      temp <- dat[event==TRUE,list(byid,date)]
-      temp[,date:=date-i]
-      data.table::setkeyv(temp,c("byid","date"))
-      noteligibledays <- merge(noteligibledays,temp, all=TRUE)
+      temp <- dat[event == TRUE, list(byid, date)]
+      temp[ , date := date - i]
+      data.table::setkeyv(temp, c("byid", "date"))
+      noteligibledays <- merge(noteligibledays, temp, all = TRUE)
     }
   }
   
   #indicator flag
-  noteligibledays[,eligible:=FALSE]
+  noteligibledays[ , eligible := FALSE]
   dat <- noteligibledays[dat]
-  dat[event==FALSE & is.na(eligible), eligible:=TRUE]
+  dat[event == FALSE & is.na(eligible), eligible := TRUE]
   
-  data.table::setkeyv(bydt,"byid")
+  data.table::setkeyv(bydt, "byid")
   dat <- unique(bydt)[dat]
-  dat[,byid:=NULL]
-  dat[,casecontrol:=ifelse(event,1,ifelse(eligible,0,NA))]
+  dat[ , byid := NULL]
+  dat[ , casecontrol := ifelse(event, 1, ifelse(eligible, 0, NA))]
   
   return(dat)
 }
