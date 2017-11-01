@@ -11,9 +11,9 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-"
 )
 ```
-# smurf
 
-The goal of smurf is to ...
+# Overview of the package
+This package allows you to select matched controls for an exposure variable under study in environmental epidemiology. Then you will be able to conduct a matched analysis to examine the health effects of the exposure variable.
 
 ## Installation
 
