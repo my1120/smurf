@@ -1,20 +1,24 @@
 #' Find events
 #'
 #' This function finds events (e.g. heat waves or ozone events). The approach is to find 
-#' consecutive days that are above a thresholds.
+#' consecutive days when the exposure variable of interest are above a thresholds. So the best
+#' situation of using this function to find events is that the exposure variable has a 
+#' measured value on each day. These consecutive days are called "events". 
+#' 
 #' 
 #' @param date A vector of dates. 
 #' @param x The exposure variable (e.g. temperature for heat waves or ozone for ozone events)
-#' @param xmin The minimum value that x must be for at least mindays to qualify as an event.
+#' @param xmin The minimum value that x must be for at least \code{mindays} to qualify as an event.
 #' @param mindays The minimum number of consecutive days that qualify as an event.
 #' @param by A vector of ids or a matrix with columns as the id variables. The events will be 
 #'    found separately within each unique combination of id variables. This is optional.
 #'    
-#' @return Returns a data.table with the columns for by, x, date as well as the following new 
-#'    variables: above and indivator the x>xmin; above_fromstart number of consecutive days that 
-#'    have exceeded xmin through the current date; above_toend the number of remaining days that 
-#'    are above xmin; length the total number of consecutive days that are above xmin; event a 
-#'    logical indivatring a day is part of an event.  
+#' @return Returns a data.table with the columns for \code{by, x, date} as well as the following new 
+#'    variables.
+#' @return \code{above} is an indicator of the x>xmin; \code{above_fromstart} is the number of 
+#'    consecutive days that have exceeded \code{xmin} through the current date; \code{above_toend} is
+#'    the number of remaining days that are above \code{xmin}; \code{length} the total number of 
+#'    consecutive days that are above xmin; event a logical indivatring a day is part of an event.  
 #'    
 #' @author Ander Wilson
 #' 
