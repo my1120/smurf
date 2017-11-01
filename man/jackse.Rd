@@ -9,13 +9,14 @@ jackse(x, theta, bycol = TRUE, ...)
 \arguments{
 \item{x}{A vector or matrix to be summarized.}
 
-\item{theta}{The summary statistic to be used. For example, theta=mean calcualted the jackknife 
-standard errors for the mean.}
+\item{theta}{The summary statistic to be used. For example, \code{theta = mean} calculates the 
+jackknife standard errors for the mean.}
 
 \item{bycol}{Logical indicating if the data are in rows or columns when x is a matrix. The 
 default is TRUE.}
 
-\item{...}{Other parameters to be passed to \code{theta}.}
+\item{...}{Other parameters to be passed to the summary statistic function specified by 
+\code{theta}.}
 }
 \value{
 Jackknife standard errors.

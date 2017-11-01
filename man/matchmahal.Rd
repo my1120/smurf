@@ -27,7 +27,7 @@ number of days of the range of events. For example, if the events occur on days 
 150, 151, 152 of the year and datewindow=7 then control days will have day of years in the 
 range of 93 to 159. If missing then all days are eligible.}
 
-\item{...}{Additional arguments to be passed to [?]}
+\item{...}{Additional arguments to be passed to \code{match.it}}
 }
 \value{
 data A \code{data.table} object of matched cases and controls.
@@ -39,7 +39,7 @@ sum.matched A summary of the quality of each match. See documentation for \code{
    for more details.
 }
 \description{
-This function finds matches for the events without a strata sing the Mahalanobis distrance and 
+This function finds matches for the events without a strata sing the Mahalanobis distance and 
 nearest neighbor. It is a wrapper for the \code{matchit} function from the \code{MatchIt} package.
 }
 \seealso{

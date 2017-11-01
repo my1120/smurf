@@ -2,6 +2,7 @@
 
 export(findeventneighbors)
 export(findevents)
+export(findlag)
 export(hpd)
 export(jackse)
 export(lag)

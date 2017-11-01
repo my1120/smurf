@@ -4,7 +4,7 @@
 \alias{findeventneighbors}
 \title{Find event neighbors}
 \usage{
-findeventneighbors(date, event, days = 0, by)
+findeventneighbors(date, event, days = 0, by = NULL)
 }
 \arguments{
 \item{date}{A vector of dates.}
@@ -22,7 +22,7 @@ Returns a vector of logicals that indivates which days are not events and not wi
 }
 \description{
 This function finds non-event days that are near events (e.g. the day after a heat 
-waves or ozone events). The days are potentially excluded as potential control days when 
+wave or ozone event). The days are potentially excluded as potential control days when 
 using matching approachs.
 }
 \author{

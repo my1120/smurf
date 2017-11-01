@@ -15,14 +15,25 @@
 #'    
 #' @return Returns a data.table with the columns for \code{by, x, date} as well as the following new 
 #'    variables.
-#' @return \code{above} is an indicator of the x>xmin; \code{above_fromstart} is the number of 
-#'    consecutive days that have exceeded \code{xmin} through the current date; \code{above_toend} is
-#'    the number of remaining days that are above \code{xmin}; \code{length} the total number of 
-#'    consecutive days that are above xmin; event a logical indivatring a day is part of an event.  
+#' @return \code{above} is an indicator of the (x > xmin) ("1" means the exposure variable of that day
+#' is above the threshold, "0" means the exposure variable is below the threshold.)
+#' @return \code{above_fromstart} is the number of consecutive days that have exceeded \code{xmin} 
+#' through the current date.
+#' @return \code{above_toend} is the number of remaining days that are above \code{xmin}.
+#' @return \code{length} is the total number of consecutive days that are above xmin.
+#' @return \code{event} is a logical variable indicating whether a day is part of an event.  
 #'    
 #' @author Ander Wilson
 #' 
 #' @importFrom data.table :=
+#' 
+#' @example 
+#' \dontrun{
+#' data("chicagoNMMAPS")
+#' chic <- chicagoNMMAPS
+#' heat_wave <- findevents(date = chic$date, x = chic$temp, xmin = 20)
+#' # temp is the daily mean temperature
+#' }
 #' 
 #' @export
 findevents <- function(date, x, xmin, mindays = 2, by){
