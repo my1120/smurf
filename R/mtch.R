@@ -9,7 +9,7 @@
 #'    \code{NA} represent non-event days that are ineligible as matches (e.g. because of missing data, 
 #'    or they are too close to other event days, as determined by \code{findeventneighbors}).
 #' @param matchvars A matrix where the columns represent variables that will be matched on using 
-#'    the Mahalanobis distrance and nearest neighbor. 
+#'    the Mahalanobis distance and nearest neighbor. 
 #' @param mahdoy A logical indicating if the day of year should be included in the 
 #'    Mahalanobis-metric matching within the caliper. The default is FALSE. If TRUE then the 
 #'    distance to the treatment day based on day of year will be included with the other matching 

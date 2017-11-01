@@ -24,6 +24,8 @@ library(eesim)
 
 # Overview of the package
 
+
+
 # Basic example
 
 As a basic example, we'll show how to use the `smurf` package to find matching days for a matched cohort study of extreme heat days and cardiovascular mortality. The `dlnm` package includes an example dataset, `chicagoNMMAPS`, with daily temperature (`temp`, in degrees Celsius) and cardiovascular mortality (`cvd`) data for Chicago, IL, for 1987--2000. 
@@ -72,7 +74,7 @@ Here are three random matched sets based on this matching:
 ```{r echo = FALSE, fig.height = 8, fig.width = 6, fig.align = "center"}
 chic_matched$data %>% 
   select(date, pairing) %>% 
-  filter(pairing %in% sample(unique(chic_matched$data$pairing), size = 3)) %>% 
+  filter(pairing %in% sample(unique(chic_matched$data$'pairing'), size = 3)) %>% 
   right_join(data_frame(date = seq.Date(from = as.Date("1987-01-01"), 
                                         to = as.Date("2000-12-31"), by = 1)),
              by = "date") %>% 
@@ -97,7 +99,7 @@ chic_matched_5controls <- mtch(date = chic$date,
 ```{r echo = FALSE, fig.height = 8, fig.width = 6, fig.align = "center"}
 chic_matched_5controls$data %>% 
   select(date, pairing) %>% 
-  filter(pairing %in% sample(unique(chic_matched$data$pairing), size = 3)) %>% 
+  filter(pairing %in% sample(unique(chic_matched$data$'pairing'), size = 3)) %>% 
   right_join(data_frame(date = seq.Date(from = as.Date("1987-01-01"), 
                                         to = as.Date("2000-12-31"), by = 1)),
              by = "date") %>% 
@@ -142,7 +144,7 @@ If you would like to avoid picked matched control days that are near other event
 chic_avoid <- findeventneighbors(date = chic$date, event = chic$extreme_heat, days = 7)
 ```
 
-This returns a data frame with logical columns for whether each day is an `event` and whether it is `eligible` to be selected as a matched day for an event day. It also returns a column named `casecontrol` that has 0 for an eligible non-event day, 1 for an event day, and `NA` for an ineligible non-event day: 
+This returns a data frame with logical columns for whether each day is an `event` and whether it is `eligible` to be selected as a matched non-event day for an event day. It also returns a column named `casecontrol` that has 0 for an eligible non-event day, 1 for an event day, and `NA` for an ineligible non-event day: 
 
 ```{r}
 chic_avoid %>% 
@@ -154,7 +156,7 @@ The `casecontrol` column from this output can then be used as input to the `mtch
 
 ```{r}
 chic_matched_avoid <- mtch(date = chic_avoid$date,
-                     casecontrol = chic_avoid$casecontrol,, 
+                     casecontrol = chic_avoid$casecontrol, 
                      matchvars = matrix(as.numeric(factor(chic$dow)), ncol = 1),
                      caldays = 14,
                      mahdoy = TRUE, 
@@ -237,3 +239,12 @@ summary(casecontrol_mod)$coef["extreme_heatTRUE", ]
 ```
 
 # Details about the package
+```{r}
+chic.lag <- lag(date = chic$date, x = chic$extreme_heat,
+                       lags = 10)
+head(chic$extreme_heat, 10)
+head(chic.lag, 10)
+
+
+```
+

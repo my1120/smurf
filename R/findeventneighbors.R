@@ -1,7 +1,7 @@
 #' Find event neighbors
 #'
 #' This function finds non-event days that are near events (e.g. the day after a heat 
-#' waves or ozone events). The days are potentially excluded as potential control days when 
+#' wave or ozone event). The days are potentially excluded as potential control days when 
 #' using matching approachs.
 #'    
 #' @param date A vector of dates. 

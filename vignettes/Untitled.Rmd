@@ -1,0 +1,111 @@
+---
+title: "Temp"
+output: html_document
+---
+
+```{r}
+date <- chic$date
+x <- chic$extreme_heat
+lags <- 5
+by <- NA
+
+a <- findlag(date = chic$date, x = chic$extreme_heat, af_lags = 5, be_lags = 2)
+
+    by <- data.table::data.table(by)
+    data.table::setkeyv(by, names(by))
+    bydt <- unique(by)
+    data.table::setkeyv(bydt, names(bydt))
+    bydt[,byid:=1:nrow(bydt)]
+    bydt <- bydt[by]
+
+
+  dat <- data.table::data.table(date=date,xlag0=x,byid=bydt$byid)
+  data.table::setkeyv(dat,c("byid","date"))
+  dat <- unique(dat)
+  
+  dat2 <- data.table::copy(dat)
+  data.table::setnames(dat2,"xlag0","xtemp")
+  
+  # for i in 1:K makes lags up to K days.
+  if(lags>0){
+    for(i in 1:lags){
+      dat2[,date:=date-1]
+      data.table::setkeyv(dat2,c("byid","date"))
+      dat <- dat2[dat]
+      data.table::setnames(dat,"xtemp",paste0("xlag",i))
+    }
+  }
+  
+  data.table::setkeyv(bydt,"byid")
+  dat <- unique(bydt)[dat]
+  dat[,byid:=NULL]
+
+
+lag_temp <- function(date,x,lags=1, by){
+  
+  if(missing(by)){
+    by <- NA
+  }else{
+    by <- data.table::data.table(by)
+    data.table::setkeyv(by, names(by))
+    bydt <- unique(by)
+    data.table::setkeyv(bydt, names(bydt))
+    bydt[,byid:=1:nrow(bydt)]
+    bydt <- bydt[by]
+  }
+  
+  dat <- data.table::data.table(date=date,xlag0=x,byid=bydt$byid)
+  data.table::setkeyv(dat,c("byid","date"))
+  dat <- unique(dat)
+  
+  dat2 <- data.table::copy(dat)
+  data.table::setnames(dat2,"xlag0","xtemp")
+  
+  # for i in 1:K makes lags up to K days.
+  if(lags>0){
+    for(i in 1:lags){
+      dat2[,date:=date+1]
+      data.table::setkeyv(dat2,c("byid","date"))
+      dat <- dat2[dat]
+      data.table::setnames(dat,"xtemp",paste0("xlag",i))
+    }
+  }
+  
+  data.table::setkeyv(bydt,"byid")
+  dat <- unique(bydt)[dat]
+  dat[,byid:=NULL]
+  
+  return(dat)
+}
+
+a <- lag_temp(date = chic$date, x = chic$extreme_heat, lags = 2)
+head(a)
+a[210:215, ]
+```
+
+
+
+```{r}
+library(MatchIt)
+data("lalonde")
+head(lalonde)
+nrow(lalonde)
+demo(subclass)
+m.out <- matchit(treat ~ re74 + re75 + educ, data = lalonde, method = "nearest")
+m.out
+match.data(m.out, "control")
+```
+
+
+```{r}
+library(smurf)
+library(dlnm)
+data("chicagoNMMAPS")
+chic <- chicagoNMMAPS
+a <- findevents(date = chic$date, x = chic$temp, xmin = 10, by = chic$year)
+a
+b <- subset(a, event == TRUE)
+b
+
+```
+

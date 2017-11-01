@@ -1,6 +1,6 @@
 #' Match with Mahalanobis
 #'
-#' This function finds matches for the events without a strata sing the Mahalanobis distrance and 
+#' This function finds matches for the events without a strata sing the Mahalanobis distance and 
 #' nearest neighbor. It is a wrapper for the \code{matchit} function from the \code{MatchIt} package.
 #' 
 #' @param date A vector of dates. 

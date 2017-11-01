@@ -3,7 +3,7 @@
 #' Calculate jackknife standard errors.
 #' 
 #' @param x A vector or matrix to be summarized.
-#' @param theta The summary statistic to be used. For example, \code{theta = mean} calcualtes the 
+#' @param theta The summary statistic to be used. For example, \code{theta = mean} calculates the 
 #'    jackknife standard errors for the mean.
 #' @param bycol Logical indicating if the data are in rows or columns when x is a matrix. The 
 #'    default is TRUE.

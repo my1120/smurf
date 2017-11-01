@@ -1,12 +1,13 @@
 #' Create lag variables
 #'
-#' This function finds non-event days that are near events (e.g. the day after a heat waves or 
+#' This function finds non-event days that are near events (e.g. the days before or after heat waves or 
 #' ozone events). The days are potentially excluded as potential control days when using matching 
 #' approachs.
 #' 
 #' @param date A vector of dates. 
-#' @param x The varibale to be lagged.
-#' @param lags The number of days the variable should be lagged
+#' @param x The variable to be lagged.
+#' @param af_lags The number of days following event days.
+#' @param be_lags The number of days before event days.
 #' @param by A vector of ids or a matrix with columns as the id variables. The events will be found 
 #'    separately within each unique combination of id variables. This is optional.
 #'    
@@ -17,7 +18,7 @@
 #' @importFrom data.table :=
 #' 
 #' @export
-lag <- function(date,x,lags=1, by){
+findlag <- function(date, x, af_lags = 1, be_lags = 0, by){
   
   if(missing(by)){
     by <- NA
@@ -26,30 +27,40 @@ lag <- function(date,x,lags=1, by){
     data.table::setkeyv(by, names(by))
     bydt <- unique(by)
     data.table::setkeyv(bydt, names(bydt))
-    bydt[,byid:=1:nrow(bydt)]
+    bydt[, byid := 1:nrow(bydt)]
     bydt <- bydt[by]
   }
   
-  dat <- data.table::data.table(date=date,xlag0=x,byid=bydt$byid)
+  dat <- data.table::data.table(date = date, xlag0 = x,  byid = bydt$byid)
   data.table::setkeyv(dat,c("byid","date"))
   dat <- unique(dat)
   
   dat2 <- data.table::copy(dat)
-  data.table::setnames(dat2,"xlag0","xtemp")
+  data.table::setnames(dat2, "xlag0", "xtemp")
   
   # for i in 1:K makes lags up to K days.
-  if(lags>0){
-    for(i in 1:lags){
-      dat2[,date:=date+1]
-      data.table::setkeyv(dat2,c("byid","date"))
+  if(af_lags>0){
+    for(i in 1:af_lags){
+      dat2[, date := date + 1]
+      data.table::setkeyv(dat2, c("byid", "date"))
       dat <- dat2[dat]
-      data.table::setnames(dat,"xtemp",paste0("xlag",i))
+      data.table::setnames(dat, "xtemp", paste0("xlag", i))
     }
   }
   
-  data.table::setkeyv(bydt,"byid")
+  if(be_lags>0){
+    for(i in 1:be_lags){
+      dat2[, date := date - 1]
+      data.table::setkeyv(dat2, c("byid", "date"))
+      dat <- dat2[dat]
+      data.table::setnames(dat, "xtemp", paste0("xlag", "-", i))
+    }
+  }
+  
+  
+  data.table::setkeyv(bydt, "byid")
   dat <- unique(bydt)[dat]
-  dat[,byid:=NULL]
+  dat[, byid := NULL]
   
   return(dat)
 }
