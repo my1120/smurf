@@ -8,12 +8,13 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-"
+  fig.path = "man/figures/README-",
+  warning = FALSE, message = FALSE
 )
 ```
 
 # Overview of the package
-This package allows you to select matched controls for an exposure variable under study in environmental epidemiology. Then you will be able to conduct a matched analysis to examine the health effects of the exposure variable.
+This package allows you to select matched controls for an exposure variable under study in environmental epidemiology. Then you will be able to conduct a matched analysis to examine the health effects of the exposure variable. 
 
 ## Installation
 
@@ -21,13 +22,85 @@ You can install smurf from github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("my1120/smurf")
+# devtools::install_github("my1120/smurf")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-## basic example code
+```{r packages}
+library(easypackages)
+libraries("smurf", "dlnm", "eesim", "dplyr", "data.table")
 ```
+
+A single city dataset is available from the package "dlnm".
+```{r}
+data("chicagoNMMAPS")
+chic <- chicagoNMMAPS
+head(chic)
+```
+
+Simulate a multi-city dataset with continuous exposure variable.
+```{r data simulation}
+city_a <- create_sims(n_reps = 1, n = 365 * 5, exposure_type = "continuous",
+                      exposure_trend = "cos1", central = 15, sd = 1,
+                      exposure_amp = 0.6,
+                      average_outcome = 40, outcome_trend = "cos1linear",
+                      outcome_amp = 0.6,
+                      rr = 1.2, start.date = "2000-01-01")
+city_a <- do.call(rbind.data.frame, city_a)
+city_a$city <- "A"
+
+city_b <- create_sims(n_reps = 1, n = 365 * 5, exposure_type = "continuous",
+                      exposure_trend = "cos1", central = 30, sd = 1,
+                      exposure_amp = 0.6,
+                      average_outcome = 40, outcome_trend = "cos1linear",
+                      outcome_amp = 0.6,
+                      rr = 1.4, start.date = "2000-01-01")
+city_b <- do.call(rbind.data.frame, city_b)
+city_b$city <- "B"
+
+city_c <- create_sims(n_reps = 1, n = 365 * 5, exposure_type = "continuous",
+                      exposure_trend = "cos1", central = 10, sd = 1,
+                      exposure_amp = 0.6,
+                      average_outcome = 40, outcome_trend = "cos1linear",
+                      outcome_amp = 0.6,
+                      rr = 1.02, start.date = "2000-01-01")
+city_c <- do.call(rbind.data.frame, city_c)
+city_c$city <- "C"
+
+mcity <- rbind(city_a, city_b, city_c) %>%
+  rename(exposure = x)
+head(mcity)
+```
+
+#### findevent
+Under some circumstances, an environmental exposure event is defined based on continuous measurements. For example, heatwave is typically defined as .... [citation]. "findevent" function can be used to find exposure event based on some conditions.
+
+First, here is an example of finding exposure event for a single city. 
+```{r}
+chic_xmin <- data.table::data.table(byid = 1, xmin = 30)
+chic_event <- findevents(date = chic$date, x = chic$temp, xmint = chic_xmin, 
+                         mindays = 2)
+subset(chic_event, event == TRUE)
+```
+
+Second, if the datasets contains data for multiple cities, you would like to find events within each city. Here is an example using the simulated multicities dataset.
+```{r}
+# find the tresholds within each city
+m_xmin <- mcity %>%
+  group_by(city) %>%
+  summarise(xmin = quantile(exposure, probs = 0.8)) %>%
+  mutate(byid = 1:length(city)) %>%
+  select(byid, xmin) %>%
+  as.data.frame()
+
+mevent_1 <- findevents(date = mcity$date, x = mcity$exposure, 
+                      xmint = m_xmin, 
+                      mindays = 2, by = mcity$city)
+mevent_1
+```
+
+
+
+
+

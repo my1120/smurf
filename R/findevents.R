@@ -8,38 +8,40 @@
 #' 
 #' @param date A vector of dates. 
 #' @param x The exposure variable (e.g. temperature for heat waves or ozone for ozone events)
-#' @param xmin The minimum value that x must be for at least \code{mindays} to qualify as an event.
+#' @param xmint A n by 2 matrix. n is the same lenghth of unique combination of ID variables 
+#'    defined in \code{by}. The 2 columns are \code{byid} and \code{xmin}. \code{xmin} is 
+#'    the minimum value that \code{x} must be for at least \code{mindays} to qualify as an event.
 #' @param mindays The minimum number of consecutive days that qualify as an event.
-#' @param by A vector of ids or a matrix with columns as the id variables. The events will be 
-#'    found separately within each unique combination of id variables. This is optional.
+#' @param by A vector of IDs or a matrix with columns as the ID variables. The events will be 
+#'    found separately within each unique combination of ID variables. This is optional.
 #'    
 #' @return Returns a data.table with the columns for \code{by, x, date} as well as the following new 
 #'    variables.
-#' @return \code{above} is an indicator of the (x > xmin) ("1" means the exposure variable of that day
+#' @return \code{above} An indicator of the (x > xmin) ("1" means the exposure variable of that day
 #' is above the threshold, "0" means the exposure variable is below the threshold.)
-#' @return \code{above_fromstart} is the number of consecutive days that have exceeded \code{xmin} 
+#' @return \code{above_fromstart} The number of consecutive days that have exceeded \code{xmin} 
 #' through the current date.
-#' @return \code{above_toend} is the number of remaining days that are above \code{xmin}.
-#' @return \code{length} is the total number of consecutive days that are above xmin.
-#' @return \code{event} is a logical variable indicating whether a day is part of an event.  
+#' @return \code{above_toend} The number of remaining days that are above \code{xmin}.
+#' @return \code{length} The total number of consecutive days that are above xmin.
+#' @return \code{event} A logical variable indicating whether a day is part of an event.  
 #'    
 #' @author Ander Wilson
 #' 
 #' @importFrom data.table :=
 #' 
-#' @example 
+#' @examples  
 #' \dontrun{
 #' data("chicagoNMMAPS")
 #' chic <- chicagoNMMAPS
-#' heat_wave <- findevents(date = chic$date, x = chic$temp, xmin = 20)
-#' # temp is the daily mean temperature
+#' 
 #' }
 #' 
 #' @export
-findevents <- function(date, x, xmin, mindays = 2, by){
+findevents <- function(date, x, xmint, mindays = 2, by){
   
   if(missing(by)) {
     by <- NA
+    bydt <- data.table::data.table(by = by, byid = rep(1, length(date)))
   } else {
     by <- data.table::data.table(by)
     data.table::setkeyv(by, names(by))
@@ -50,11 +52,15 @@ findevents <- function(date, x, xmin, mindays = 2, by){
   }
   
   dat <- data.table::data.table(date = date, x = x, byid = bydt$byid)
-  data.table::setkeyv(dat, c("byid", "date"))
+  dat <- dplyr::left_join(dat, xmint, by = "byid")
+  dat <- data.table(dat)
   dat[ , above := 1 * (x > xmin)]
   dat[ , above_fromstart := above]
   dat[ , above_toend := above]
   dat <- unique(dat)
+  
+  dat[, xmin := NULL]
+  data.table::setkeyv(dat, c("byid", "date"))
   
   kg <- TRUE
   i <- 1

@@ -4,28 +4,37 @@
 \alias{findevents}
 \title{Find events}
 \usage{
-findevents(date, x, xmin, mindays = 2, by)
+findevents(date, x, xmint, mindays = 2, by)
 }
 \arguments{
 \item{date}{A vector of dates.}
 
 \item{x}{The exposure variable (e.g. temperature for heat waves or ozone for ozone events)}
 
-\item{xmin}{The minimum value that x must be for at least \code{mindays} to qualify as an event.}
+\item{xmint}{A n by 2 matrix. n is the same lenghth of unique combination of ID variables 
+defined in \code{by}. The 2 columns are \code{byid} and \code{xmin}. \code{xmin} is 
+the minimum value that \code{x} must be for at least \code{mindays} to qualify as an event.}
 
 \item{mindays}{The minimum number of consecutive days that qualify as an event.}
 
-\item{by}{A vector of ids or a matrix with columns as the id variables. The events will be 
-found separately within each unique combination of id variables. This is optional.}
+\item{by}{A vector of IDs or a matrix with columns as the ID variables. The events will be 
+found separately within each unique combination of ID variables. This is optional.}
 }
 \value{
 Returns a data.table with the columns for \code{by, x, date} as well as the following new 
    variables.
 
-\code{above} is an indicator of the x>xmin; \code{above_fromstart} is the number of 
-   consecutive days that have exceeded \code{xmin} through the current date; \code{above_toend} is
-   the number of remaining days that are above \code{xmin}; \code{length} the total number of 
-   consecutive days that are above xmin; event a logical indivatring a day is part of an event.
+\code{above} An indicator of the (x > xmin) ("1" means the exposure variable of that day
+is above the threshold, "0" means the exposure variable is below the threshold.)
+
+\code{above_fromstart} The number of consecutive days that have exceeded \code{xmin} 
+through the current date.
+
+\code{above_toend} The number of remaining days that are above \code{xmin}.
+
+\code{length} The total number of consecutive days that are above xmin.
+
+\code{event} A logical variable indicating whether a day is part of an event.
 }
 \description{
 This function finds events (e.g. heat waves or ozone events). The approach is to find 
@@ -33,6 +42,16 @@ consecutive days when the exposure variable of interest are above a thresholds. 
 situation of using this function to find events is that the exposure variable has a 
 measured value on each day. These consecutive days are called "events".
 }
+\examples{
+ 
+\dontrun{
+data("chicagoNMMAPS")
+chic <- chicagoNMMAPS
+
+}
+
+}
 \author{
 Ander Wilson
 }
+
